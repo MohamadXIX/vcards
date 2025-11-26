@@ -39,6 +39,9 @@ class ContactController extends Controller
 
         $contact = Contact::create($data);
 
+         // Generate vCard file
+        $this->generateVcfFile($contact);
+
         return redirect()->route('contacts.index')
             ->with('success', 'Contact created successfully.');
     }
@@ -67,6 +70,10 @@ class ContactController extends Controller
         $data['is_active'] = $request->has('is_active');
 
         $contact->update($data);
+
+         // Regenerate vCard file
+        $this->generateVcfFile($contact);
+
 
         return redirect()->route('contacts.index')
             ->with('success', 'Contact updated successfully.');
