@@ -84,44 +84,69 @@ class ContactController extends Controller
     // Show QR code (admin view)
     public function qr(Contact $contact)
     {
-        $scanUrl = route('contacts.vcard', $contact->uuid);
-
-        // We pass only the URL, and draw QR in Blade using the facade
-        return view('contacts.partials.qr', compact('contact', 'scanUrl'));
+        // The QR links directly to the physical .vcf file
+        $scanUrl = url("vcf/{$contact->uuid}.vcf");
+        return view('contacts.qr', compact('contact', 'scanUrl'));
     }
 
-    // Public: generate and return vCard when QR is scanned
+    // -------------------------------------------------------------
+    // PUBLIC VCARD ENDPOINT (OPTIONAL)
+    // -------------------------------------------------------------
     public function vcard($uuid)
     {
-        $contact = Contact::where('uuid', $uuid)
-            ->where('is_active', true)
-            ->firstOrFail();
+        $filePath = public_path("vcf/{$uuid}.vcf");
 
+        if (!file_exists($filePath)) {
+            abort(404);
+        }
+
+        return response()->file($filePath, [
+            'Content-Type'        => 'text/vcard',
+            'Content-Disposition' => 'inline; filename=contact.vcf',
+        ]);
+    }
+
+    // -------------------------------------------------------------
+    // GENERATE VCF FILE (ANDROID + IOS COMPATIBLE)
+    // -------------------------------------------------------------
+    private function generateVcfFile(Contact $contact)
+    {
         $vcard  = "BEGIN:VCARD\r\n";
         $vcard .= "VERSION:3.0\r\n";
         $vcard .= "FN:{$contact->name}\r\n";
-        if ($contact->company || $contact->job_title) {
-            $org = trim($contact->company . ($contact->job_title ? " ({$contact->job_title})" : ''));
-            $vcard .= "ORG:{$org}\r\n";
-        }
         $vcard .= "TEL;TYPE=CELL:{$contact->phone}\r\n";
+
         if ($contact->email) {
             $vcard .= "EMAIL:{$contact->email}\r\n";
+        }
+        if ($contact->company) {
+            $vcard .= "ORG:{$contact->company}\r\n";
+        }
+        if ($contact->job_title) {
+            $vcard .= "TITLE:{$contact->job_title}\r\n";
         }
         if ($contact->website) {
             $vcard .= "URL:{$contact->website}\r\n";
         }
         if ($contact->address) {
-            // Basic address (street only)
-            $vcard .= "ADR;TYPE=WORK:;;{$contact->address};;;;\r\n";
+            $vcard .= "ADR:;;{$contact->address}\r\n";
         }
         if ($contact->notes) {
-            $vcard .= "NOTE:" . str_replace(["\r\n", "\n"], "\\n", $contact->notes) . "\r\n";
+            $notes = str_replace(["\n", "\r\n"], "\\n", $contact->notes);
+            $vcard .= "NOTE:{$notes}\r\n";
         }
+
         $vcard .= "END:VCARD\r\n";
 
-        return response($vcard, 200)
-            ->header('Content-Type', 'text/vcard; charset=utf-8')
-            ->header('Content-Disposition', 'inline; filename="contact.vcf"');
+        // Path: public/vcf/{uuid}.vcf
+        $path = public_path("vcf/{$contact->uuid}.vcf");
+
+        if (!file_exists(dirname($path))) {
+            mkdir(dirname($path), 0777, true);
+        }
+
+        file_put_contents($path, $vcard);
+
+        return true;
     }
 }
