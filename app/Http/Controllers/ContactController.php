@@ -86,7 +86,7 @@ class ContactController extends Controller
     {
         // The QR links directly to the physical .vcf file
         $scanUrl = url("vcf/{$contact->uuid}.vcf");
-        return view('contacts.qr', compact('contact', 'scanUrl'));
+        return view('contacts.partials.qr', compact('contact', 'scanUrl'));
     }
 
     // -------------------------------------------------------------
