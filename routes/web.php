@@ -12,6 +12,9 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// Public dynamic vCard endpoint via UUID (this is what QR points to)
+    Route::get('/c/{uuid}', [ContactController::class, 'vcard'])->name('contacts.vcard');
+    
 Route::middleware('auth')->group(function () {
 
     // Admin CRUD (simple)
@@ -24,9 +27,6 @@ Route::middleware('auth')->group(function () {
 
     // Show QR preview for a contact (admin)
     Route::get('/contacts/{contact}/qr', [ContactController::class, 'qr'])->name('contacts.qr');
-
-    // Public dynamic vCard endpoint via UUID (this is what QR points to)
-    Route::get('/c/{uuid}', [ContactController::class, 'vcard'])->name('contacts.vcard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
