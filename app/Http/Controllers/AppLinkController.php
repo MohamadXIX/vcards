@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\AppLink;
 use Illuminate\Http\Request;
@@ -51,13 +53,36 @@ class AppLinkController extends Controller
 
         $appLink->update($request->only(['name', 'ios_url', 'android_url']));
 
-        return back()->with('success', 'Updated successfully!');
+        return redirect()->route('app-links.index')->with('success', 'Updated successfully!');
     }
 
     public function destroy(AppLink $appLink)
     {
         $appLink->delete();
         return back()->with('success', 'Deleted successfully!');
+    }
+
+    public function download($id)
+    {
+        $qr = AppLink::findOrFail($id);
+
+        // The permanent redirect URL stored in the database
+        $redirectUrl = url('/qr/' . $qr->uuid);
+
+        // Generate PNG QR code
+        $qrPng = QrCode::format('png')
+            ->size(500)
+            ->margin(2)
+            ->generate($redirectUrl);
+
+        // Optional: You may store it if needed
+        $filename = 'qr-' . $qr->uuid . '.png';
+        Storage::disk('public')->put('qrcodes/'.$filename, $qrPng);
+
+        // Return download
+        return response($qrPng)
+            ->header('Content-Type', 'image/png')
+            ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
     }
 
     // Device detection redirect

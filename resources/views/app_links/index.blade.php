@@ -19,52 +19,72 @@
             </a>
         </div>
 
-        {{-- Table Wrapper --}}
+         {{-- Table Wrapper --}}
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
             <div class="p-6 bg-white border-b border-gray-200">
 
                 <div class="overflow-x-auto">
-                    <table class="min-w-full bg-white shadow rounded">
-            <thead>
-            <tr class="bg-gray-100 border-b">
-                <th class="px-4 py-2 text-left">Name</th>
-                <th class="px-4 py-2 text-left">QR</th>
-                <th class="px-4 py-2 text-left">Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach($links as $link)
-                <tr class="border-b">
-                    <td class="px-4 py-2">{{ $link->name }}</td>
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">QR</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Download</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                        </thead>
 
-                    <td class="px-4 py-2">
-                        {!! QrCode::size(120)->generate(url('/qr/'.$link->slug)) !!}
-                    </td>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                        @forelse($links as $link)
+                            <tr>
+                                <td class="px-4 py-3 text-sm text-gray-700">{{ $link->id }}</td>
+                                <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ $link->name }}</td>
+                                <td class="px-4 py-3 text-sm font-medium text-gray-900">
+                                    {!! QrCode::size(120)->generate(url('/qr/'.$link->slug)) !!}
+                                </td>
+                                <td class="px-4 py-3 text-sm font-medium text-gray-900">
+                                    <a href="{{ route('qr.download', $link->id) }}" class="btn btn-sm btn-primary">
+                                        Download PNG
+                                    </a>
+                                </td>
 
-                    <td class="px-4 py-2">
-                        <a href="{{ route('app-links.edit', $link) }}"
-                           class="px-2 py-1 bg-yellow-500 text-white rounded">Edit</a>
+                                <td class="px-4 py-3 space-x-2">
+                                    <a href="{{ route('app-links.edit', $link) }}"
+                                       class="inline-flex items-center px-3 py-1.5 bg-yellow-500 text-xs
+                                              rounded-md hover:bg-yellow-600">
+                                        Edit
+                                    </a>
 
-                        <form action="{{ route('app-links.destroy', $link) }}" method="POST" class="inline"
-                              onsubmit="return confirm('Delete?')">
-                            @csrf
-                            @method('DELETE')
-                            <button class="px-2 py-1 bg-red-600 text-white rounded">Delete</button>
-                        </form>
+                                    <form action="{{ route('app-links.destroy', $link) }}" method="POST"
+                                          class="inline-block"
+                                          onsubmit="return confirm('Delete this contact?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button
+                                            class="inline-flex items-center px-3 py-1.5 bg-red-600 text-white text-xs
+                                                   rounded-md hover:bg-red-700">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="px-4 py-3 text-center text-gray-400 text-sm">
+                                    No App Links found.
+                                </td>
+                            </tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
 
-                        <a href="{{ url('/qr/'.$link->slug) }}"
-                           class="px-2 py-1 bg-gray-700 text-white rounded" target="_blank">
-                            Test Redirect
-                        </a>
-                    </td>
-                </tr>
-            @endforeach
-            </tbody>
-        </table>
-
-        <div class="mt-4">{{ $links->links() }}</div>
+                {{-- Pagination --}}
+                <div class="mt-4">
+                    {{ $links->links() }}
+                </div>
             </div>
         </div>
-
     </div>
 </x-app-layout>

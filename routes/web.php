@@ -34,6 +34,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/contacts/{contact}/qr', [ContactController::class, 'qr'])->name('contacts.qr');
 
     Route::resource('app-links', AppLinkController::class);
+    Route::get('/qr/{id}/download', [AppLinkController::class, 'download'])->name('qr.download');
+
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

@@ -21,23 +21,7 @@
             <form action="{{ route('app-links.store') }}" method="POST">
                 @csrf
 
-                <div class="mt-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                    <input type="text" name="name" class="block w-full rounded-md border-gray-300 shadow-sm
-                                focus:ring-indigo-500 focus:border-indigo-500" required>
-                </div>
-
-                <div class="mt-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">iOS App Store Link</label>
-                    <input type="url" name="ios_url" class="block w-full rounded-md border-gray-300 shadow-sm
-                                focus:ring-indigo-500 focus:border-indigo-500" required>
-                </div>
-
-                <div class="mt-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Android Play Store Link</label>
-                    <input type="url" name="android_url" class="block w-full rounded-md border-gray-300 shadow-sm
-                                focus:ring-indigo-500 focus:border-indigo-500" required>
-                </div>
+                @include('app_links.partials.form')
 
                 <div class="mt-6">
                     <button type="submit"
