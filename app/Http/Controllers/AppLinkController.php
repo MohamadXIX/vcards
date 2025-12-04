@@ -67,22 +67,22 @@ class AppLinkController extends Controller
         $qr = AppLink::findOrFail($id);
 
         // The permanent redirect URL stored in the database
-        $redirectUrl = url('/qr/' . $qr->uuid);
+        $redirectUrl = url('/qr/' . $qr->slug);
 
         // Generate PNG QR code
-        $qrPng = QrCode::format('png')
+        $qrPng = QrCode::format('svg')
             ->size(500)
             ->margin(2)
             ->generate($redirectUrl);
 
-        // Optional: You may store it if needed
-        $filename = 'qr-' . $qr->uuid . '.png';
-        Storage::disk('public')->put('qrcodes/'.$filename, $qrPng);
+        // // Optional: You may store it if needed
+        // $filename = 'qr-' . $qr->slug . '.png';
+        // Storage::disk('public')->put('qrcodes/'.$filename, $qrPng);
 
         // Return download
         return response($qrPng)
-            ->header('Content-Type', 'image/png')
-            ->header('Content-Disposition', 'attachment; filename="'.$filename.'"');
+            ->header('Content-Type', 'image/svg+xml')
+            ->header('Content-Disposition', 'attachment; filename="qr-code.svg"');
     }
 
     // Device detection redirect

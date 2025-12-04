@@ -45,7 +45,7 @@
                                 </td>
                                 <td class="px-4 py-3 text-sm font-medium text-gray-900">
                                     <a href="{{ route('qr.download', $link->id) }}" class="btn btn-sm btn-primary">
-                                        Download PNG
+                                        Download SVG
                                     </a>
                                 </td>
 
@@ -58,7 +58,7 @@
 
                                     <form action="{{ route('app-links.destroy', $link) }}" method="POST"
                                           class="inline-block"
-                                          onsubmit="return confirm('Delete this contact?')">
+                                          onsubmit="return confirm('Delete this QR?')">
                                         @csrf
                                         @method('DELETE')
                                         <button
