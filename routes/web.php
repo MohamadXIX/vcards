@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AppLinkController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ProfileController;
 
@@ -13,8 +14,12 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Public dynamic vCard endpoint via UUID (this is what QR points to)
-    Route::get('/c/{uuid}', [ContactController::class, 'vcard'])->name('contacts.vcard');
-    
+Route::get('/c/{uuid}', [ContactController::class, 'vcard'])->name('contacts.vcard');
+
+// Public redirect
+Route::get('/qr/{appLink:slug}', [AppLinkController::class, 'redirect'])
+->name('app-links.redirect');
+
 Route::middleware('auth')->group(function () {
 
     // Admin CRUD (simple)
@@ -27,6 +32,8 @@ Route::middleware('auth')->group(function () {
 
     // Show QR preview for a contact (admin)
     Route::get('/contacts/{contact}/qr', [ContactController::class, 'qr'])->name('contacts.qr');
+
+    Route::resource('app-links', AppLinkController::class);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
